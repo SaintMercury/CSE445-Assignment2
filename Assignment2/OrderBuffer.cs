@@ -16,6 +16,8 @@ namespace Assignment2
 
         public OrderBuffer()
         {
+            _cells = new List<BufferObject>(3);
+
             // Instantiate our buffer with 3 empty buffer objects
             for (var i = 0; i < 3; ++i)
             {
