@@ -15,17 +15,17 @@ namespace Assignment2
         private List<BufferObject> _cells;
         private Semaphore _semaphore;
 
-        public OrderBuffer()
+        public OrderBuffer(int numberOfCells)
         {
-            _cells = new List<BufferObject>(3);
+            _cells = new List<BufferObject>(numberOfCells);
             // Instantiate our buffer with 3 empty buffer objects
-            for (var i = 0; i < 3; ++i)
+            for (var i = 0; i < numberOfCells; ++i)
             {
                 _cells.Add(new BufferObject());
             }
 
             // We have 3 empty cells and a max of 3 cells
-            _semaphore = new Semaphore(3, 3);
+            _semaphore = new Semaphore(numberOfCells, numberOfCells);
         }
 
         public string GetAvailableCell()

@@ -11,8 +11,9 @@ namespace Assignment2
     {
         static void Main(string[] args)
         {
+            int numberOfCells = 3;
             
-            var buffer = new OrderBuffer();
+            var buffer = new OrderBuffer(numberOfCells);
             var rand = new Random();
             var test1 = new Test(buffer, "thread_1", rand);
             var test2 = new Test(buffer, "thread_2", rand);

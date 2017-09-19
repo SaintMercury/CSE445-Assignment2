@@ -8,8 +8,11 @@ namespace Assignment2
     {
         public OrderBuffer OrderBuffer { get; set; }
         public string ThreadName { get; set; }
-        protected List<Order> OrderList;
         public Random rand { get; set; }
+
+        protected List<Order> OrderList;
+        
+
         public Test(OrderBuffer orderBuffer, string threadName, Random random)
         {
             OrderBuffer = orderBuffer;
@@ -22,6 +25,7 @@ namespace Assignment2
             }
             OrderList = orderList;
         }
+
         public void TestThread()
         {
             Thread.Sleep(100);
