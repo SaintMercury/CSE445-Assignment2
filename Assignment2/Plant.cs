@@ -8,6 +8,7 @@ namespace Assignment2
     class Plant
     {
         private const int MAX_PRICECUTS = 20;
+        private int OrdersReceived;
         private float currentPrice;
         private float previousPrice;
         private int numberOfCars; // not sure we need this
@@ -68,6 +69,8 @@ namespace Assignment2
             var encOrder = Buffer.GetCell(plantName);
             if (encOrder != null)
             {
+                OrdersReceived++;
+                Console.WriteLine("Orders received: " + OrdersReceived);
                 Order order = EncDec.DecodeOrder(encOrder);
                 processOrder(order);
             }

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading;
 
 namespace Assignment2
 {
@@ -34,19 +29,32 @@ namespace Assignment2
 
             
             var buffer = new OrderBuf();
-            var plant = new Plant(buffer);
-            var plantThread = new Thread(new ThreadStart(plant.PlantFunc));
-            plantThread.Start();
+            var plant1 = new Plant(buffer);
+            var plant2 = new Plant(buffer);
+            var plantThread1 = new Thread(new ThreadStart(plant1.PlantFunc));
+            var plantThread2 = new Thread(new ThreadStart(plant2.PlantFunc));
 
-            var dealerList = new List<Dealer>();
-            var dealerThreads = new List<Thread>();
-            for (int i = 0; i < 2; i++)
-            {
-                dealerList.Add(new Dealer(buffer));
-                Plant.PriceCut += dealerList[i].PriceCutHandler;
-                dealerThreads.Add(new Thread(new ThreadStart(dealerList[i].DealerFunc)));
-                dealerThreads[i].Start();
+            plantThread1.Start();
+            plantThread2.Start();
+
+            var dealer = new Dealer(buffer);
+            Plant.PriceCut += dealer.PriceCutHandler;
+            Thread[] dealerThreads = new Thread[3];
+            for (int i = 0; i < 3; i++) //N= 3here 
+            {	// Start N retailer threads
+                dealerThreads[i] = new Thread(new ThreadStart(dealer.DealerFunc));
+                dealerThreads[i].Name = (i + 1).ToString(); dealerThreads[i].Start();
             }
+
+            //            var dealerList = new List<Dealer>();
+            //            var dealerThreads = new List<Thread>();
+            //            for (int i = 0; i < 2; i++)
+            //            {
+            //                dealerList.Add(new Dealer(buffer));
+            //                Plant.PriceCut += dealerList[i].PriceCutHandler;
+            //                dealerThreads.Add(new Thread(new ThreadStart(dealerList[i].DealerFunc)));
+            //                dealerThreads[i].Start();
+            //            }
         }
     }
 }
