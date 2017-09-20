@@ -34,6 +34,9 @@ namespace Assignment2
             var plantThread1 = new Thread(new ThreadStart(plant1.PlantFunc));
             var plantThread2 = new Thread(new ThreadStart(plant2.PlantFunc));
 
+            plantThread1.Name = "Plant thread 1";
+            plantThread2.Name = "Plant thread 2";
+
             plantThread1.Start();
             plantThread2.Start();
 
