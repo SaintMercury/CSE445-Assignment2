@@ -8,10 +8,13 @@ namespace Assignment2
 {
     static class Pricing
     {
+        private static Random rng = new Random();
+
         public static float CalculatePrice(int numberOfOrders, int numberOfCars, float stockPrice) // INCOMPLETE
         {
             // Use some dope ass statistical data to determine price
-            return 0f;
+            var price = rng.Next(5, 20); // TODO: do actual price calculation
+            return price; 
         }
     }
 }

@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Dealer.cs" />
     <Compile Include="EncDec.cs" />
     <Compile Include="Order.cs" />
+    <Compile Include="OrderBuf.cs" />
     <Compile Include="OrderBuffer.cs" />
     <Compile Include="Plant.cs" />
     <Compile Include="Pricing.cs" />

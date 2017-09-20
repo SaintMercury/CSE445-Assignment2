@@ -1,18 +1,27 @@
-﻿namespace Assignment2
+﻿using System;
+using System.Reflection.Emit;
+using System.Security.AccessControl;
+
+namespace Assignment2
 {
     public class Order
     {
-        public string SenderId { get; set; }
+        public string SenderId { get; set; }        
         public long CardNo { get; set; }
-        public double Amount { get; set; }
-        public double UnitPrice { get; set; }
+        public int Amount { get; set; }
+        public float UnitPrice { get; set; }
+        public DateTime TimeCreated { get; set; }
+        public DateTime TimeFulfilled { get; set; }
+        public string ReceiverId { get; set; }
 
-        public Order(string senderId, long cardNo, double amt, double unitPrice)
+        public Order(string senderId, long cardNo, int amt, float unitPrice, string receiverId)
         {
             SenderId = senderId;
             CardNo = cardNo;
             Amount = amt;
             UnitPrice = unitPrice;
+            TimeCreated = DateTime.Now;
+            ReceiverId = receiverId;
         }
     }
 }

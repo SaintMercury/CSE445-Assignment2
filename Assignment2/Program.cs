@@ -13,24 +13,40 @@ namespace Assignment2
         {
             int numberOfCells = 3;
             
-            var buffer = new OrderBuffer(numberOfCells);
-            var rand = new Random();
-            var test1 = new Test(buffer, "thread_1", rand);
-            var test2 = new Test(buffer, "thread_2", rand);
-            var test3 = new Test(buffer, "thread_3", rand);
-            var test4 = new Test(buffer, "thread_4", rand);
-            var test5 = new Test(buffer, "thread_5", rand);
-            var thread1 = new Thread(new ThreadStart(test1.TestThread));
-            var thread2 = new Thread(new ThreadStart(test2.TestThread));
-            var thread3 = new Thread(new ThreadStart(test3.TestThread));
-            var thread4 = new Thread(new ThreadStart(test4.TestThread));
-            var thread5 = new Thread(new ThreadStart(test5.TestThread));
+//            var buffer = new OrderBuffer(numberOfCells);
+//            var rand = new Random();
+//            var test1 = new Test(buffer, "thread_1", rand);
+//            var test2 = new Test(buffer, "thread_2", rand);
+//            var test3 = new Test(buffer, "thread_3", rand);
+//            var test4 = new Test(buffer, "thread_4", rand);
+//            var test5 = new Test(buffer, "thread_5", rand);
+//            var thread1 = new Thread(new ThreadStart(test1.TestThread));
+//            var thread2 = new Thread(new ThreadStart(test2.TestThread));
+//            var thread3 = new Thread(new ThreadStart(test3.TestThread));
+//            var thread4 = new Thread(new ThreadStart(test4.TestThread));
+//            var thread5 = new Thread(new ThreadStart(test5.TestThread));
+//
+//            thread1.Start();
+//            thread2.Start();
+//            thread3.Start();
+//            thread4.Start();
+//            thread5.Start();
 
-            thread1.Start();
-            thread2.Start();
-            thread3.Start();
-            thread4.Start();
-            thread5.Start();
+            
+            var buffer = new OrderBuf();
+            var plant = new Plant(buffer);
+            var plantThread = new Thread(new ThreadStart(plant.PlantFunc));
+            plantThread.Start();
+
+            var dealerList = new List<Dealer>();
+            var dealerThreads = new List<Thread>();
+            for (int i = 0; i < 2; i++)
+            {
+                dealerList.Add(new Dealer(buffer));
+                Plant.PriceCut += dealerList[i].PriceCutHandler;
+                dealerThreads.Add(new Thread(new ThreadStart(dealerList[i].DealerFunc)));
+                dealerThreads[i].Start();
+            }
         }
     }
 }

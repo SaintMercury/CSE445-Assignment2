@@ -21,7 +21,7 @@ namespace Assignment2
             var orderList = new List<Order>(10);
             for (var i = 0; i < 10; ++i)
             {
-                orderList.Add(new Order(ThreadName, i, i, i));
+                //orderList.Add(new Order(ThreadName, i, i, i));
             }
             OrderList = orderList;
         }
