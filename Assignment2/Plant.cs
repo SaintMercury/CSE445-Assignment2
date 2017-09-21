@@ -64,7 +64,6 @@ namespace Assignment2
                 if (PriceCut != null)
                     PriceCut(price, plantName);
 
-                Console.WriteLine("promotion");
                 ++priceCuts;
             }
 
@@ -77,7 +76,6 @@ namespace Assignment2
             if (encOrder != null)
             {
                 OrdersReceived++;
-                Console.WriteLine("Orders received for " + Thread.CurrentThread.Name + ": " + OrdersReceived);
                 Order order = EncDec.DecodeOrder(encOrder);
                 processOrder(order);
             }

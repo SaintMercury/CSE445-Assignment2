@@ -9,19 +9,22 @@ namespace Assignment2
             const int NUMBER_OF_DEALERS = 3;
             
             OrderBuf orderBuffer = new OrderBuf(),
-                     confirmationBuffer = new Assignment2.OrderBuf();
+                     confirmationBuffer = new OrderBuf();
 
-            Dealer[] dealers = new Dealer[NUMBER_OF_DEALERS];
+            // Subscribing particular threads to an event remains unsolved
+            // Dealer[] dealers = new Dealer[NUMBER_OF_DEALERS];
+            Dealer dealer = new Dealer(orderBuffer, confirmationBuffer);
             Thread[] dealerThreads = new Thread[NUMBER_OF_DEALERS];
+            Plant.PriceCut += dealer.PriceCutHandler;
 
             for (int i = 0; i < NUMBER_OF_DEALERS; ++i)
             {
-                dealers[i] = new Dealer(orderBuffer, confirmationBuffer);
-                dealerThreads[i] = new Thread(new ThreadStart(dealers[i].DealerFunc));
+                // dealers[i] = new Dealer(orderBuffer, confirmationBuffer);
+                dealerThreads[i] = new Thread(new ThreadStart(dealer.DealerFunc));
                 dealerThreads[i].Name = (i + 1).ToString();
 
                 // Enlist those dealers into an event handler to server their country
-                Plant.PriceCut += dealers[i].PriceCutHandler;
+                // Plant.PriceCut += dealers[i].PriceCutHandler;
 
                 // Politely ask our threads to start when they can. Be sure not rush the threads,
                 // it helps to make sure they don't get spiteful and deadlock.

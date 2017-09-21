@@ -51,12 +51,10 @@
     <Compile Include="EncDec.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="OrderBuf.cs" />
-    <Compile Include="OrderBuffer.cs" />
     <Compile Include="Plant.cs" />
     <Compile Include="Pricing.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

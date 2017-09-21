@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace Assignment2
 {
@@ -27,34 +24,28 @@ namespace Assignment2
             {
                 _cells.Add(orderStr);
             }
-            _full.Release();
+            _full.Release();  // Signal to consumer that there's an order ready for consumption
         }
 
         public string GetCell(string receiverName)
         {
             string str = null;
 
-            if (_full.WaitOne(1000)) // wait 1 sec for access, else give up and return null
+            if (_full.WaitOne(1000)) // attempt to gain access for 1 sec for access, else give up and return null
             {
                 lock (_cells)
                 {
-                    int ix = FindByReceiverId(receiverName); // look for orders for this plant
-                    if (ix > -1)
-                    {
-                        str = _cells.ElementAt(ix);
-                        _cells.RemoveAt(ix);
-                        _empty.Release(); // One cell is now empty so increment amount of empty cells
-                    }
-                    else
-                    {
-                        _full.Release(); // weren't able to retrieve an order so increment back to original
-                    }
+                    str = _cells.First(); // If the _full semaphore has granted access, 
+                    _cells.RemoveAt(0); // there's at least one order in the buffer. Retrieve it
+
+                    _empty.Release(); // Signal to producer that there's an empty cell ready to be set
                 }
             }
 
             return str;
         }
 
+        // Retiring this assuming any plant can retrieve an order
         private int FindByReceiverId(string receiverId)
         {
             List<Order> ordList = new List<Order>();
