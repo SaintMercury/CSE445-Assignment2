@@ -6,7 +6,7 @@ namespace Assignment2
     {
         static void Main(string[] args)
         {
-            const int NUMBER_OF_DEALERS = 3;
+            const int NUMBER_OF_DEALERS = 5;
             
             OrderBuf orderBuffer = new OrderBuf(),
                      confirmationBuffer = new OrderBuf();

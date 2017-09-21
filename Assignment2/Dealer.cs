@@ -38,7 +38,6 @@ namespace Assignment2
             string dealerName = this.ThreadName;
             Order order = new Order(dealerName, CardNo, amount, price, receiverId);
             this.OrderCount++;
-            Console.WriteLine("Order no: " + OrderCount + " generated");
 
             return order;
         }
@@ -48,7 +47,18 @@ namespace Assignment2
             while(true) // Hmmm... the dealers need to know how many plants still exist inorder to shut down
             {
                 Thread.Sleep(1000);
-                //Console.WriteLine("Awaiting promotional event");
+                GetOrderConfirmation();
+            }
+        }
+
+        private void GetOrderConfirmation()
+        {
+            string encodedOrder = ConfirmationBuffer.GetCell();   
+            if ( !string.IsNullOrEmpty(encodedOrder) )
+            {
+                Order order = EncDec.DecodeOrder(encodedOrder);
+                Console.WriteLine("\nDealer " + Thread.CurrentThread.Name + " receiving confirmation at: " + DateTime.Now);
+                Console.WriteLine("Order fulfilled by " + order.ReceiverId + " at: " + order.TimeFulfilled);
             }
         }
     }

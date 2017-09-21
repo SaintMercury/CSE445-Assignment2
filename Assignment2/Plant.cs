@@ -12,7 +12,6 @@ namespace Assignment2
 
         private float currentPrice;
         private float previousPrice;
-        private int OrdersReceived;
         private int numberOfCars; // not sure we need this
         private int priceCuts;
         public OrderBuf OrderBuffer { get; set; }
@@ -72,10 +71,9 @@ namespace Assignment2
 
         public void getOrder(string plantName) // INCOMPLETE
         {
-            string encOrder = OrderBuffer.GetCell(plantName);
+            string encOrder = OrderBuffer.GetCell();
             if (encOrder != null)
             {
-                OrdersReceived++;
                 Order order = EncDec.DecodeOrder(encOrder);
                 processOrder(order);
             }
@@ -88,10 +86,10 @@ namespace Assignment2
             const float SALES_TAX = 0.9f;
             float subTotal = order.Amount * order.UnitPrice;
             float total = (subTotal * SALES_TAX) + subTotal;
-            DateTime fulfillmentTime = DateTime.Now;
+            order.TimeFulfilled = DateTime.Now;
 
-            Console.WriteLine("Order for " + order.SenderId + 
-                " processed at " + fulfillmentTime + " for total of: " + total);
+            string encodedOrder = EncDec.EncodeOrder(order);
+            ConfirmationBuffer.SetCell(encodedOrder);
 
             //TODO: Send confirmation to dealer
         }

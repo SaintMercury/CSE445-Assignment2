@@ -27,7 +27,7 @@ namespace Assignment2
             _full.Release();  // Signal to consumer that there's an order ready for consumption
         }
 
-        public string GetCell(string receiverName)
+        public string GetCell()
         {
             string str = null;
 
