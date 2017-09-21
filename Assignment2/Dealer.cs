@@ -6,22 +6,25 @@ namespace Assignment2
     class Dealer
     {
         public long CardNo { get; set; }
-        public OrderBuf Buffer { get; set; }
+        public OrderBuf OrderBuffer { get; set; }
+        public OrderBuf ConfirmationBuffer { get; set; }
         public int OrderCount { get; set; }
         public string ThreadName { get; set; }
         
 
-        public Dealer(OrderBuf buffer)
+        public Dealer(OrderBuf orderBuffer, OrderBuf confirmationOrder)
         {
             CardNo = 5000;
-            Buffer = buffer;
+
+            this.OrderBuffer = orderBuffer;
+            this.ConfirmationBuffer = confirmationOrder;
         }
 
         public void PriceCutHandler(float price, string plantId)
         {
-            var order = GenerateOrder(price, plantId);
-            var encodedOrder = EncDec.EncodeOrder(order);
-            Buffer.SetCell(encodedOrder);
+            Order order = GenerateOrder(price, plantId);
+            string encodedOrder = EncDec.EncodeOrder(order);
+            OrderBuffer.SetCell(encodedOrder);
         }
 
         public Order GenerateOrder(float price, string receiverId)
@@ -31,17 +34,18 @@ namespace Assignment2
                 Thread.CurrentThread.Name = ThreadName;
             }
 
-            var amount = 10; // TODO: need a way to calculate amount
-            var dealerName = Thread.CurrentThread.Name;
-            var order = new Order(dealerName, CardNo, amount, price, receiverId);
-            OrderCount++;
+            int amount = 10; // TODO: need a way to calculate amount
+            string dealerName = this.ThreadName;
+            Order order = new Order(dealerName, CardNo, amount, price, receiverId);
+            this.OrderCount++;
             Console.WriteLine("Order no: " + OrderCount + " generated");
+
             return order;
         }
 
         public void DealerFunc()
         {
-            for (int i = 0; i < 50; i++)
+            while(true) // Hmmm... the dealers need to know how many plants still exist inorder to shut down
             {
                 Thread.Sleep(1000);
                 //Console.WriteLine("Awaiting promotional event");

@@ -7,37 +7,44 @@ namespace Assignment2
 
     class Plant
     {
+        public static event PriceCutEvent PriceCut; // Link event to delegate
         private const int MAX_PRICECUTS = 20;
-        private int OrdersReceived;
+
         private float currentPrice;
         private float previousPrice;
+        private int OrdersReceived;
         private int numberOfCars; // not sure we need this
         private int priceCuts;
-        public static event PriceCutEvent PriceCut; // Link event to delegate
-        public OrderBuf Buffer { get; set; } 
+        public OrderBuf OrderBuffer { get; set; }
+        public OrderBuf ConfirmationBuffer { get; set; }
 
-        public Plant(OrderBuf buffer)
+        public Plant(OrderBuf orderBuffer, OrderBuf confirmationOrder)
         {
             // Make previous price so high that we immediately fire a promo event
             this.previousPrice = (float)double.PositiveInfinity;
             this.numberOfCars = 0;
             this.priceCuts = 0;
-            Buffer = buffer;
+            this.OrderBuffer = orderBuffer;
+            this.ConfirmationBuffer = confirmationOrder;
         }
 
         public int getPriceCuts => this.priceCuts;
 
         public void PlantFunc()
         {
-            var plantName = Thread.CurrentThread.Name;
+            string plantName = Thread.CurrentThread.Name;
 
-            while (priceCuts < MAX_PRICECUTS)
+            Console.WriteLine("{0} is starting up!", plantName);
+
+            while (this.priceCuts < MAX_PRICECUTS)
             {
                 Thread.Sleep(1000);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
                 getOrder(plantName);
                 currentPrice = determinePrice();
             }
+
+            Console.WriteLine("{0} is shutting down...", plantName);
         }
 
         public void produceCars(int numberOfCars)
@@ -66,7 +73,7 @@ namespace Assignment2
 
         public void getOrder(string plantName) // INCOMPLETE
         {
-            var encOrder = Buffer.GetCell(plantName);
+            string encOrder = OrderBuffer.GetCell(plantName);
             if (encOrder != null)
             {
                 OrdersReceived++;
@@ -80,10 +87,10 @@ namespace Assignment2
         {
             // Make a new thread, do the thing, dab, close thread or whatever
 
-            const double SALES_TAX = .9;
-            var subTotal = order.Amount * order.UnitPrice;
-            var total = (subTotal * SALES_TAX) + subTotal;
-            var fulfillmentTime = DateTime.Now;
+            const float SALES_TAX = 0.9f;
+            float subTotal = order.Amount * order.UnitPrice;
+            float total = (subTotal * SALES_TAX) + subTotal;
+            DateTime fulfillmentTime = DateTime.Now;
 
             Console.WriteLine("Order for " + order.SenderId + 
                 " processed at " + fulfillmentTime + " for total of: " + total);
@@ -95,21 +102,6 @@ namespace Assignment2
         {
             // Do what we gotta do
 
-        }
-    }
-
-    class PlantThread
-    {
-        public void Run(OrderBuf buffer) // INCOMPLETE
-        {
-            const int MAX_PRICECUTS = 20;
-            Plant plant = new Plant(buffer);
-
-            while(plant.getPriceCuts < MAX_PRICECUTS)
-            {
-                plant.produceCars(10);
-                plant.determinePrice();
-            }
         }
     }
 }
