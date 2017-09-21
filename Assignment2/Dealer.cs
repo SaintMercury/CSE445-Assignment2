@@ -44,11 +44,14 @@ namespace Assignment2
 
         public void DealerFunc()
         {
-            while(true) // Hmmm... the dealers need to know how many plants still exist inorder to shut down
+            while(OrderBuffer.PlantsAreRunning) // Hmmm... the dealers need to know how many plants still exist inorder to shut down
             {
                 Thread.Sleep(1000);
                 GetOrderConfirmation();
             }
+
+            Console.WriteLine("Dealer " + Thread.CurrentThread.Name + " shutting down");
+            ConfirmationBuffer.ShutDownPlant();
         }
 
         private void GetOrderConfirmation()

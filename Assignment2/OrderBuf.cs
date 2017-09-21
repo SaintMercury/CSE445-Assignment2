@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -9,12 +10,16 @@ namespace Assignment2
         private Semaphore _empty;
         private Semaphore _full;
         private List<string> _cells;
+        public bool PlantsAreRunning { get; set; }
+        private int _plantsRunning;
 
         public OrderBuf()
         {
             _empty = new Semaphore(3, 3);
             _full = new Semaphore(0, 3);
             _cells = new List<string>();
+            _plantsRunning = 2;
+            PlantsAreRunning = true;
         }
 
         public void SetCell(string orderStr)
@@ -45,20 +50,13 @@ namespace Assignment2
             return str;
         }
 
-        // Retiring this assuming any plant can retrieve an order
-        private int FindByReceiverId(string receiverId)
+        public void ShutDownPlant()
         {
-            List<Order> ordList = new List<Order>();
-
-            foreach (string cell in _cells)
+            _plantsRunning--;
+            if (_plantsRunning == 0)
             {
-                Order order = EncDec.DecodeOrder(cell);
-                ordList.Add(order);
+                PlantsAreRunning = false;
             }
-
-            int orderIndex = ordList.FindIndex(order => order.ReceiverId == receiverId); // -1 if not found
-
-            return orderIndex;
         }
     }
 }

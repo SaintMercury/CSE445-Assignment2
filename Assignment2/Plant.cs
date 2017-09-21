@@ -8,7 +8,7 @@ namespace Assignment2
     class Plant
     {
         public static event PriceCutEvent PriceCut; // Link event to delegate
-        private const int MAX_PRICECUTS = 20;
+        private const int MAX_PRICECUTS = 3;
 
         private float currentPrice;
         private float previousPrice;
@@ -37,13 +37,14 @@ namespace Assignment2
 
             while (this.priceCuts < MAX_PRICECUTS)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(100);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
                 getOrder(plantName);
                 currentPrice = determinePrice();
             }
 
             Console.WriteLine("{0} is shutting down...", plantName);
+            OrderBuffer.ShutDownPlant();
         }
 
         public void produceCars(int numberOfCars)
