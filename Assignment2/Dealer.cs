@@ -16,6 +16,7 @@ namespace Assignment2
             CardNo = 5000;
             Buffer = buffer;
         }
+
         public void PriceCutHandler(float price, string plantId)
         {
             var order = GenerateOrder(price, plantId);

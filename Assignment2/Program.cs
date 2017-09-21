@@ -7,6 +7,7 @@ namespace Assignment2
         static void Main(string[] args)
         {
             int numberOfCells = 3;
+            const int NUMBER_OF_DEALERS = 3;
             
 //            var buffer = new OrderBuffer(numberOfCells);
 //            var rand = new Random();
@@ -28,11 +29,13 @@ namespace Assignment2
 //            thread5.Start();
 
             
-            var buffer = new OrderBuf();
-            var plant1 = new Plant(buffer);
-            var plant2 = new Plant(buffer);
-            var plantThread1 = new Thread(new ThreadStart(plant1.PlantFunc));
-            var plantThread2 = new Thread(new ThreadStart(plant2.PlantFunc));
+            OrderBuf buffer = new OrderBuf();
+
+            Plant plant1 = new Plant(buffer),
+                  plant2 = new Plant(buffer);
+
+            Thread plantThread1 = new Thread(new ThreadStart(plant1.PlantFunc)),
+                   plantThread2 = new Thread(new ThreadStart(plant2.PlantFunc));
 
             plantThread1.Name = "Plant thread 1";
             plantThread2.Name = "Plant thread 2";
@@ -40,13 +43,21 @@ namespace Assignment2
             plantThread1.Start();
             plantThread2.Start();
 
-            var dealer = new Dealer(buffer);
-            Plant.PriceCut += dealer.PriceCutHandler;
-            Thread[] dealerThreads = new Thread[3];
-            for (int i = 0; i < 3; i++) //N= 3here 
+            Dealer[] dealers = new Dealer[NUMBER_OF_DEALERS];
+            Thread[] dealerThreads = new Thread[NUMBER_OF_DEALERS];
+
+            for (int i = 0; i < NUMBER_OF_DEALERS; ++i) 
             {	// Start N retailer threads
-                dealerThreads[i] = new Thread(new ThreadStart(dealer.DealerFunc));
-                dealerThreads[i].Name = (i + 1).ToString(); dealerThreads[i].Start();
+                dealers[i] = new Assignment2.Dealer(buffer);
+                dealerThreads[i] = new Thread(new ThreadStart(dealers[i].DealerFunc));
+                dealerThreads[i].Name = (i + 1).ToString();
+
+                // Enlist those dealers into an event handler to server their country
+                Plant.PriceCut += dealers[i].PriceCutHandler;
+
+                // Politely ask our threads to start when they can. Be sure not rush the threads,
+                // it helps to make sure they don't get spiteful and deadlock.
+                dealerThreads[i].Start();
             }
 
             //            var dealerList = new List<Dealer>();

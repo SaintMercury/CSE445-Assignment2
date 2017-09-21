@@ -38,7 +38,7 @@ namespace Assignment2
             {
                 lock (_cells)
                 {
-                    var ix = FindByReceiverId(receiverName); // look for orders for this plant
+                    int ix = FindByReceiverId(receiverName); // look for orders for this plant
                     if (ix > -1)
                     {
                         str = _cells.ElementAt(ix);
@@ -57,17 +57,17 @@ namespace Assignment2
 
         private int FindByReceiverId(string receiverId)
         {
-            var ordList = new List<Order>();
+            List<Order> ordList = new List<Order>();
 
-            foreach (var cell in _cells)
+            foreach (string cell in _cells)
             {
-                var order = EncDec.DecodeOrder(cell);
+                Order order = EncDec.DecodeOrder(cell);
                 ordList.Add(order);
             }
 
-            var ix = ordList.FindIndex(x => x.ReceiverId == receiverId); // -1 if not found
+            int orderIndex = ordList.FindIndex(order => order.ReceiverId == receiverId); // -1 if not found
 
-            return ix;
+            return orderIndex;
         }
     }
 }
