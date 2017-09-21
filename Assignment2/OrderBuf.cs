@@ -13,12 +13,12 @@ namespace Assignment2
         public bool PlantsAreRunning { get; set; }
         private int _plantsRunning;
 
-        public OrderBuf()
+        public OrderBuf(int plantCount = 2)
         {
             _empty = new Semaphore(3, 3);
             _full = new Semaphore(0, 3);
             _cells = new List<string>();
-            _plantsRunning = 2;
+            _plantsRunning = plantCount;
             PlantsAreRunning = true;
         }
 

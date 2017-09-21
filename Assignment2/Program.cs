@@ -4,12 +4,26 @@ namespace Assignment2
 {
     class Program
     {
+        static void initPlants(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int plantCount = 2)
+        {
+            for(int i = 0; i < plantCount; ++i)
+            {
+                Plant plant = new Plant(orderBuffer, confirmationBuffer);
+                Thread thread = new Thread(new ThreadStart(plant.PlantFunc));
+                thread.Name = "Plant Thread: " + i.ToString();
+                thread.Start();
+            }
+        }
+
         static void Main(string[] args)
         {
             const int NUMBER_OF_DEALERS = 5;
+            const int NUMBER_OF_PLANTS = 2;
             
             OrderBuf orderBuffer = new OrderBuf(),
                      confirmationBuffer = new OrderBuf();
+
+            initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
 
             // Subscribing particular threads to an event remains unsolved
             // Dealer[] dealers = new Dealer[NUMBER_OF_DEALERS];
@@ -30,18 +44,6 @@ namespace Assignment2
                 // it helps to make sure they don't get spiteful and deadlock.
                 dealerThreads[i].Start();
             }
-
-            Plant plant1 = new Plant(orderBuffer, confirmationBuffer),
-                  plant2 = new Plant(orderBuffer, confirmationBuffer);
-
-            Thread plantThread1 = new Thread(new ThreadStart(plant1.PlantFunc)),
-                   plantThread2 = new Thread(new ThreadStart(plant2.PlantFunc));
-
-            plantThread1.Name = "Plant thread 1";
-            plantThread2.Name = "Plant thread 2";
-
-            plantThread1.Start();
-            plantThread2.Start();
         }
     }
 }

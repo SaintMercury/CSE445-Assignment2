@@ -5,6 +5,8 @@ namespace Assignment2
 {
     class Dealer
     {
+        private static int NUMBER_OF_ACTIVE_DEALERS = 0;
+
         public long CardNo { get; set; }
         public OrderBuf OrderBuffer { get; set; }
         public OrderBuf ConfirmationBuffer { get; set; }
@@ -44,7 +46,9 @@ namespace Assignment2
 
         public void DealerFunc()
         {
-            while(OrderBuffer.PlantsAreRunning) // Hmmm... the dealers need to know how many plants still exist inorder to shut down
+            Console.WriteLine("Dealer {0} starting up", Thread.CurrentThread.Name);
+
+            while (Plant.ActivePlantCount() > 0)
             {
                 Thread.Sleep(1000);
                 GetOrderConfirmation();
@@ -62,6 +66,11 @@ namespace Assignment2
                 Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", Thread.CurrentThread.Name, DateTime.Now);
                 Console.WriteLine("Order fulfilled by {0} at {1}", order.ReceiverId, order.TimeFulfilled);
             }
+        }
+
+        public static int ActiveDealerCount()
+        {
+            return Dealer.NUMBER_OF_ACTIVE_DEALERS;
         }
     }
 }
