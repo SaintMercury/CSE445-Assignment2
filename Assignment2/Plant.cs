@@ -12,7 +12,7 @@ namespace Assignment2
 
         private float currentPrice;
         private float previousPrice;
-        private int numberOfCars; // not sure we need this
+        private int numberOfCars;
         private int priceCuts;
         public OrderBuf OrderBuffer { get; set; }
         public OrderBuf ConfirmationBuffer { get; set; }

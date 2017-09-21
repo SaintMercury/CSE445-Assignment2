@@ -50,8 +50,7 @@ namespace Assignment2
                 GetOrderConfirmation();
             }
 
-            Console.WriteLine("Dealer " + Thread.CurrentThread.Name + " shutting down");
-            ConfirmationBuffer.ShutDownPlant();
+            Console.WriteLine("Dealer {0} shutting down", Thread.CurrentThread.Name);
         }
 
         private void GetOrderConfirmation()
@@ -60,8 +59,8 @@ namespace Assignment2
             if ( !string.IsNullOrEmpty(encodedOrder) )
             {
                 Order order = EncDec.DecodeOrder(encodedOrder);
-                Console.WriteLine("\nDealer " + Thread.CurrentThread.Name + " receiving confirmation at: " + DateTime.Now);
-                Console.WriteLine("Order fulfilled by " + order.ReceiverId + " at: " + order.TimeFulfilled);
+                Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", Thread.CurrentThread.Name, DateTime.Now);
+                Console.WriteLine("Order fulfilled by {0} at {1}", order.ReceiverId, order.TimeFulfilled);
             }
         }
     }
