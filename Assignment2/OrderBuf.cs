@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
@@ -10,16 +9,12 @@ namespace Assignment2
         private Semaphore _empty;
         private Semaphore _full;
         private List<string> _cells;
-        public bool PlantsAreRunning { get; set; }
-        private int _plantsRunning;
-
-        public OrderBuf(int plantCount = 2)
+        
+        public OrderBuf()
         {
             _empty = new Semaphore(3, 3);
             _full = new Semaphore(0, 3);
             _cells = new List<string>();
-            _plantsRunning = plantCount;
-            PlantsAreRunning = true;
         }
 
         public void SetCell(string orderStr)
@@ -48,15 +43,6 @@ namespace Assignment2
             }
 
             return str;
-        }
-
-        public void ShutDownPlant()
-        {
-            _plantsRunning--;
-            if (_plantsRunning == 0)
-            {
-                PlantsAreRunning = false;
-            }
         }
     }
 }

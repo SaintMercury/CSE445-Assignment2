@@ -8,7 +8,7 @@ namespace Assignment2
     class Plant
     {
         public static event PriceCutEvent PriceCut; // Link event to delegate
-        private static int NUMBER_OF_ACTIVE_PLANTS = 0;
+        private static int NUMBER_OF_ACTIVE_PLANTS = 2;
         private const int MAX_PRICECUTS = 3;
 
         private float currentPrice;
@@ -46,7 +46,7 @@ namespace Assignment2
 
             Console.WriteLine("{0} is shutting down...", plantName);
 
-            OrderBuffer.ShutDownPlant();
+            NUMBER_OF_ACTIVE_PLANTS--;
         }
 
         public void produceCars(int numberOfCars)
