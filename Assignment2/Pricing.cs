@@ -10,7 +10,8 @@ namespace Assignment2
         public static float CalculatePrice(float numberOfOrders, float numberOfCars, float stockPrice)
         {
             float SOME_CONSTANT = 1000.0f;
-            float price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT;
+            float price = numberOfOrders / (Math.Abs(numberOfCars) * stockPrice * SOME_CONSTANT);
+
             return price;
         }
     }
