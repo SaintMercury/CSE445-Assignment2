@@ -67,7 +67,7 @@ namespace Assignment2
             {
                 Thread.Sleep(Program.WAIT_TIME);
                 GetOrderConfirmation();
-                Console.WriteLine("Plant Count that I ({1}) see: {0}", Plant.ActivePlantCount(), this.ThreadName);
+                // Console.WriteLine("Plant Count that I ({1}) see: {0}", Plant.ActivePlantCount(), this.ThreadName);
             }
 
             Dealer.ActiveCountSemaphore.WaitOne(-1);

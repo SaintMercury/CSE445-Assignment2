@@ -10,7 +10,7 @@ namespace Assignment2
         public static event PriceCutEvent PriceCut; // Link event to delegate
         private static Semaphore ActiveCountSemaphore = new Semaphore(1, 1);
         private static int NUMBER_OF_ACTIVE_PLANTS = 0;
-        private const int MAX_PRICECUTS = 10;
+        private const int MAX_PRICECUTS = 3;
         private const int CARS_PER_TICK = 100;
 
         private float currentPrice;
@@ -64,7 +64,7 @@ namespace Assignment2
 
         public float determinePrice()
         {
-            int numberOfOrders = OrderBuffer.count();
+            int numberOfOrders = 1;
             float stockPrice = (float)(new Random()).NextDouble() * 500.0f + 250.0f;
 
             this.previousPrice = this.currentPrice;

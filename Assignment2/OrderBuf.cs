@@ -84,19 +84,5 @@ namespace Assignment2
                 
             return encodedStr;
         }
-
-        public int count()
-        {
-            int count = 0;
-            lock(_Cells)
-            {
-                for(int i = 0; i < _Cells.Length; ++i)
-                {
-                    if (!string.IsNullOrEmpty(_Cells[i]))
-                        count++;
-                }
-            }
-            return count;
-        }
     }
 }
