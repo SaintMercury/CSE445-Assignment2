@@ -14,8 +14,8 @@ namespace Assignment2
         {
             // Use some dope ass statistical data to determine price
             float SOME_CONSTANT = 1.0f;
-            var price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT;
-            return price; 
+            var price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT * (rng.NextDouble() + 0.5);
+            return (float)price; 
         }
     }
 }

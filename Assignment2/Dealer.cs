@@ -58,7 +58,7 @@ namespace Assignment2
         {
             this.ThreadName = Thread.CurrentThread.Name;
 
-            Console.WriteLine(" Dealer {0} starting up", this.ThreadName);
+            Console.WriteLine("Dealer {0} starting up", this.ThreadName);
 
             Dealer.ActiveCountSemaphore.WaitOne(-1);
             Dealer.NUMBER_OF_ACTIVE_DEALERS++;

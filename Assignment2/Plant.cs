@@ -25,7 +25,7 @@ namespace Assignment2
             // Make previous price so high that we immediately fire a promo event
             this.previousPrice = 0;
             this.currentPrice = 1000000;
-            this.numberOfCars = 0;
+            this.numberOfCars = 100;
             this.priceCuts = 0;
             this.OrderBuffer = orderBuffer;
             this.ConfirmationBuffer = confirmationOrder;
@@ -44,10 +44,12 @@ namespace Assignment2
             while (this.priceCuts < Plant.MAX_PRICECUTS)
             {
                 Thread.Sleep(Program.WAIT_TIME);
+
                 this.produceCars(Plant.CARS_PER_TICK);
-                // Take the order from the queue of the orders; // Decide the price based on the orders 
+
                 getOrder(plantName);
                 determinePrice();
+                Console.WriteLine("Plant {0} current price: {1}", Thread.CurrentThread.Name, this.currentPrice);
             }
 
             Plant.ActiveCountSemaphore.WaitOne(-1);
@@ -65,17 +67,17 @@ namespace Assignment2
         public float determinePrice()
         {
             int numberOfOrders = 1;
-            float stockPrice = 100;//  (float)(new Random()).NextDouble() * 500.0f + 250.0f;
+            float stockPrice = 250.0f;
 
             this.previousPrice = this.currentPrice;
-            this.currentPrice = this.previousPrice - 1; // Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
+            this.currentPrice = Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
 
             if (this.currentPrice < this.previousPrice)
             {
                 var plantName = Thread.CurrentThread.Name;
                 if (PriceCut != null)
                 {
-                    Console.WriteLine("\nPRICE CUT!!\n");
+                    Console.WriteLine("\nPRICE CUT!!");
                     PriceCut(this.currentPrice);
                 }
 
@@ -87,7 +89,7 @@ namespace Assignment2
 
         public void getOrder(string plantName)
         {
-            string encOrder = OrderBuffer.GetFirstAvailableCell();//OrderBuffer.GetCell();
+            string encOrder = OrderBuffer.GetFirstAvailableCell();
             if (encOrder != null)
             {
                 Order order = EncDec.DecodeOrder(encOrder);
