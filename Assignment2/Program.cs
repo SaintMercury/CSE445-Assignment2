@@ -6,7 +6,7 @@ namespace Assignment2
 {
     class Program
     {
-        public static int WAIT_TIME = 1;
+        public static int WAIT_TIME = 100;
 
         static void initPlants(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int plantCount = 2)
         {
@@ -41,6 +41,12 @@ namespace Assignment2
 
             initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
             initDealers(orderBuffer, confirmationBuffer, NUMBER_OF_DEALERS);
+
+            while(true)
+            {
+                Thread.Sleep(5000);
+                Console.WriteLine("Tick...");
+            }
         }
     }
 }

@@ -75,6 +75,7 @@ namespace Assignment2
 
         public string GetCellByIndex(int index)
         {
+            /**
             string encodedStr = null;
            
             lock (_Cells)
@@ -83,6 +84,8 @@ namespace Assignment2
             }
                 
             return encodedStr;
+            **/
+            return _Cells[index];
         }
     }
 }

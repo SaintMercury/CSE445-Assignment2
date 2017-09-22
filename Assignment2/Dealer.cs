@@ -12,9 +12,10 @@ namespace Assignment2
         public OrderBuf OrderBuffer { get; set; }
         public OrderBuf ConfirmationBuffer { get; set; }
         public int OrderCount { get; set; }
+        private int outstandingOrders;
+        private int fulfilledOrders;
         public string ThreadName { get; set; }
         public float CurrentPrice { get; set; }
-        private int outstandingOrders;
         public float PrevPrice { get; set; }
         
 
@@ -57,7 +58,7 @@ namespace Assignment2
         {
             this.ThreadName = Thread.CurrentThread.Name;
 
-            Console.WriteLine("{0} starting up", this.ThreadName);
+            Console.WriteLine(" Dealer {0} starting up", this.ThreadName);
 
             Dealer.ActiveCountSemaphore.WaitOne(-1);
             Dealer.NUMBER_OF_ACTIVE_DEALERS++;
@@ -66,15 +67,16 @@ namespace Assignment2
             while (Plant.ActivePlantCount() > 0)
             {
                 Thread.Sleep(Program.WAIT_TIME);
-                GetOrderConfirmation();
-                // Console.WriteLine("Plant Count that I ({1}) see: {0}", Plant.ActivePlantCount(), this.ThreadName);
+                if(this.outstandingOrders > 0)
+                    GetOrderConfirmation();
             }
 
             Dealer.ActiveCountSemaphore.WaitOne(-1);
             Dealer.NUMBER_OF_ACTIVE_DEALERS--;
             Dealer.ActiveCountSemaphore.Release();
 
-            Console.WriteLine("{0} shutting down", this.ThreadName);
+            Console.WriteLine("Dealer {0}: Sent to Fulfilled orders: ({1}, {2})", this.ThreadName, this.OrderCount, this.fulfilledOrders);
+            Console.WriteLine("Dealer {0} shutting down", this.ThreadName);
         }
 
         private void GetOrderConfirmation()
@@ -85,9 +87,10 @@ namespace Assignment2
             {
                 Order order = EncDec.DecodeOrder(encodedOrder);
 
-                Console.WriteLine("\n{0} receiving confirmation at: {1}", this.ThreadName, DateTime.Now);
-                Console.WriteLine("Order fulfilled by {0} at {1}", order.ReceiverId, order.TimeFulfilled);
+                Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", this.ThreadName, DateTime.Now);
+                Console.WriteLine("Order fulfilled by Plant {0} at {1}", order.ReceiverId, order.TimeFulfilled);
                 this.outstandingOrders--;
+                this.fulfilledOrders++;
             }
         }
 

@@ -23,8 +23,8 @@ namespace Assignment2
         public Plant(OrderBuf orderBuffer, OrderBuf confirmationOrder)
         {
             // Make previous price so high that we immediately fire a promo event
-            this.previousPrice = (float)double.PositiveInfinity;
-            this.currentPrice = (float)double.PositiveInfinity;
+            this.previousPrice = 0;
+            this.currentPrice = 1000000;
             this.numberOfCars = 0;
             this.priceCuts = 0;
             this.OrderBuffer = orderBuffer;
@@ -35,7 +35,7 @@ namespace Assignment2
         {
             string plantName = Thread.CurrentThread.Name;
 
-            Console.WriteLine("{0} is starting up!", plantName);
+            Console.WriteLine("Plant {0} is starting up!", plantName);
 
             Plant.ActiveCountSemaphore.WaitOne(-1);
             Plant.NUMBER_OF_ACTIVE_PLANTS++;
@@ -54,7 +54,7 @@ namespace Assignment2
             Plant.NUMBER_OF_ACTIVE_PLANTS--;
             Plant.ActiveCountSemaphore.Release();
 
-            Console.WriteLine("{0} is shutting down...", plantName);
+            Console.WriteLine("Plant {0} is shutting down...", plantName);
         }
 
         public void produceCars(int numberOfCars)
@@ -65,10 +65,10 @@ namespace Assignment2
         public float determinePrice()
         {
             int numberOfOrders = 1;
-            float stockPrice = (float)(new Random()).NextDouble() * 500.0f + 250.0f;
+            float stockPrice = 100;//  (float)(new Random()).NextDouble() * 500.0f + 250.0f;
 
             this.previousPrice = this.currentPrice;
-            this.currentPrice = Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
+            this.currentPrice = this.previousPrice - 1; // Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
 
             if (this.currentPrice < this.previousPrice)
             {
@@ -102,6 +102,8 @@ namespace Assignment2
             const float SALES_TAX = 1.09f;
             float subTotal = order.Amount * order.UnitPrice;
             float total = subTotal * SALES_TAX;
+
+            this.numberOfCars -= order.Amount;
 
 
             order.TimeFulfilled = DateTime.Now;
