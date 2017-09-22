@@ -20,11 +20,12 @@ namespace Assignment2
 
         static void initDealers(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int dealerCount = 5)
         {
+            Dealer[] dealers = new Dealer[5];
             for(int i = 0; i < dealerCount; ++i)
             {
-                Dealer dealer = new Dealer(orderBuffer, confirmationBuffer);
-                Plant.PriceCut += dealer.PriceCutHandler;
-                Thread thread = new Thread(new ThreadStart(dealer.DealerFunc));
+                dealers[i] = new Dealer(orderBuffer, confirmationBuffer, i);
+                Plant.PriceCut += dealers[i].PriceCutHandler;
+                Thread thread = new Thread(new ThreadStart(dealers[i].DealerFunc));
                 thread.Name = i.ToString();
                 thread.Start();
             }

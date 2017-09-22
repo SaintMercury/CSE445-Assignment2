@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Threading;
 
 namespace Assignment2
@@ -7,7 +8,7 @@ namespace Assignment2
     {
         private static int NUMBER_OF_ACTIVE_DEALERS = 0;
         private static Semaphore ActiveCountSemaphore = new Semaphore(1, 1);
-
+        private static Random rng = new Random();
         public long CardNo { get; set; }
         public OrderBuf OrderBuffer { get; set; }
         public OrderBuf ConfirmationBuffer { get; set; }
@@ -17,40 +18,51 @@ namespace Assignment2
         public string ThreadName { get; set; }
         public float CurrentPrice { get; set; }
         public float PrevPrice { get; set; }
+        public int DealerId { get; set; }
         
 
-        public Dealer(OrderBuf orderBuffer, OrderBuf confirmationOrder)
+        public Dealer(OrderBuf orderBuffer, OrderBuf confirmationOrder, int threadId)
         {
             CardNo = (int)(new Random()).NextDouble() * 9999;
 
             this.OrderBuffer = orderBuffer;
             this.ConfirmationBuffer = confirmationOrder;
             this.outstandingOrders = 0;
+            ThreadName = threadId.ToString();
         }
 
-        private void SendOrder()
+        private void SendOrder(object threadArg)
         {
-            Order order = GenerateOrder(CurrentPrice);
+
+            OrderThreadArg orderThreadArg = (OrderThreadArg) threadArg;
+            Order order = GenerateOrder(orderThreadArg.Price, ThreadName);
             string encodedOrder = EncDec.EncodeOrder(order);
             OrderBuffer.SetFirstAvailableCell(encodedOrder);
         }
 
         public void PriceCutHandler(float price)
         {
+            
             PrevPrice = CurrentPrice;
             CurrentPrice = price;
+            OrderThreadArg threadArg = new OrderThreadArg(price, ThreadName);
+            
             Console.WriteLine("Placing an order!");
-            SendOrder();
+            Thread sendOrderThread = new Thread(new ParameterizedThreadStart(SendOrder));
+            sendOrderThread.Start(threadArg);
+            
         }
 
-        private Order GenerateOrder(float price)
+        private Order GenerateOrder(float price, string threadName)
         {
             int amount = 10; // TODO: need a way to calculate amount
-            string dealerName = Thread.CurrentThread.Name;
+            string dealerName = threadName;
             Order order = new Order(dealerName, CardNo, amount, price);
-            this.OrderCount++;
-            this.outstandingOrders++;
-
+            lock (this)
+            {
+                this.OrderCount++;
+                this.outstandingOrders++;
+            }
             return order;
         }
 
@@ -64,7 +76,7 @@ namespace Assignment2
             Dealer.NUMBER_OF_ACTIVE_DEALERS++;
             Dealer.ActiveCountSemaphore.Release();
 
-            while (Plant.ActivePlantCount() > 0)
+            while (outstandingOrders > 0 || Plant.ActivePlantCount() > 0)
             {
                 Thread.Sleep(Program.WAIT_TIME);
                 if(this.outstandingOrders > 0)
@@ -87,16 +99,31 @@ namespace Assignment2
             {
                 Order order = EncDec.DecodeOrder(encodedOrder);
 
-                Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", this.ThreadName, DateTime.Now);
-                Console.WriteLine("Order fulfilled by Plant {0} at {1}", order.ReceiverId, order.TimeFulfilled);
-                this.outstandingOrders--;
-                this.fulfilledOrders++;
+                lock (this)
+                {
+                    Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", this.ThreadName, DateTime.Now);
+                    Console.WriteLine("Order fulfilled by Plant {0} at {1}", order.ReceiverId, order.TimeFulfilled);
+                    this.outstandingOrders--;
+                    this.fulfilledOrders++;
+                }   
             }
         }
 
         public static int ActiveDealerCount()
         {
             return Dealer.NUMBER_OF_ACTIVE_DEALERS;
+        }
+    }
+
+    class OrderThreadArg
+    {
+        public float Price { get; set; }
+        public string ThreadId { get; set; }
+
+        public OrderThreadArg(float price, string threadId)
+        {
+            Price = price;
+            ThreadId = threadId;
         }
     }
 }

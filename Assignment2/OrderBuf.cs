@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 namespace Assignment2
 {
@@ -7,11 +8,19 @@ namespace Assignment2
         private Semaphore _Empty;
         private Semaphore _Full;
         private string[] _Cells;
+        private Mutex _m1Mutex;
+        private Mutex _m2Mutex;
+        private AutoResetEvent e1;
+        private AutoResetEvent e2;
 
         public OrderBuf(int size)
         {
             _Empty = new Semaphore(size, size);
             _Full = new Semaphore(0, size);
+            _m1Mutex = new Mutex(false);
+            _m2Mutex = new Mutex(true);
+            e1 = new AutoResetEvent(false);
+            e2 = new AutoResetEvent(true);
             
             _Cells = new string[size];
             for (int i = 0; i < _Cells.Length; i++)
@@ -40,14 +49,21 @@ namespace Assignment2
 
                 _Full.Release();
             }
+            else
+            {
+                Console.WriteLine("Failed");
+            }
         }
 
         public void SetCellByIndex(string orderStr, int index)
         {
-            lock (_Cells)
-            {
-                _Cells[index] = orderStr;
-            }
+            // Entry
+            e1.Reset();
+            // CS
+            _Cells[index] = orderStr;
+
+            // Exit
+            e2.Set();
         }
 
         public string GetFirstAvailableCell()
@@ -75,17 +91,15 @@ namespace Assignment2
 
         public string GetCellByIndex(int index)
         {
-            /**
-            string encodedStr = null;
-           
-            lock (_Cells)
-            {
-                encodedStr = _Cells[index];
-            }
-                
-            return encodedStr;
-            **/
-            return _Cells[index];
+            // Entry
+            e2.Reset();
+            // CS
+            string encOrder = _Cells[index];
+
+            // Exit
+            e1.Set();
+
+            return encOrder;
         }
     }
 }

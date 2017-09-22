@@ -46,8 +46,8 @@ namespace Assignment2
                 Thread.Sleep(Program.WAIT_TIME);
                 this.produceCars(Plant.CARS_PER_TICK);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
-                getOrder(plantName);
                 determinePrice();
+                OrderProcessingThreads();
             }
 
             Plant.ActiveCountSemaphore.WaitOne(-1);
@@ -55,6 +55,16 @@ namespace Assignment2
             Plant.ActiveCountSemaphore.Release();
 
             Console.WriteLine("Plant {0} is shutting down...", plantName);
+        }
+
+        private void OrderProcessingThreads()
+        {
+            for (int i = 0; i < 5; i++)
+            {
+                Thread orderProcessor = new Thread(GetAndProcessOrder);
+                orderProcessor.Start();
+                Thread.Sleep(Program.WAIT_TIME);
+            }
         }
 
         public void produceCars(int numberOfCars)
@@ -85,8 +95,9 @@ namespace Assignment2
             return this.currentPrice;
         }
 
-        public void getOrder(string plantName)
+        public void GetAndProcessOrder()
         {
+            
             string encOrder = OrderBuffer.GetFirstAvailableCell();//OrderBuffer.GetCell();
             if (encOrder != null)
             {
