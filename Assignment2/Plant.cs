@@ -8,8 +8,10 @@ namespace Assignment2
     class Plant
     {
         public static event PriceCutEvent PriceCut; // Link event to delegate
-        private static int NUMBER_OF_ACTIVE_PLANTS = 2;
-        private const int MAX_PRICECUTS = 3;
+        private static Semaphore ActiveCountSemaphore = new Semaphore(1, 1);
+        private static int NUMBER_OF_ACTIVE_PLANTS = 0;
+        private const int MAX_PRICECUTS = 10;
+        private const int CARS_PER_TICK = 100;
 
         private float currentPrice;
         private float previousPrice;
@@ -22,13 +24,12 @@ namespace Assignment2
         {
             // Make previous price so high that we immediately fire a promo event
             this.previousPrice = (float)double.PositiveInfinity;
+            this.currentPrice = (float)double.PositiveInfinity;
             this.numberOfCars = 0;
             this.priceCuts = 0;
             this.OrderBuffer = orderBuffer;
             this.ConfirmationBuffer = confirmationOrder;
         }
-
-        public int getPriceCuts => this.priceCuts;
 
         public void PlantFunc()
         {
@@ -36,17 +37,24 @@ namespace Assignment2
 
             Console.WriteLine("{0} is starting up!", plantName);
 
+            Plant.ActiveCountSemaphore.WaitOne(-1);
+            Plant.NUMBER_OF_ACTIVE_PLANTS++;
+            Plant.ActiveCountSemaphore.Release();
+
             while (this.priceCuts < Plant.MAX_PRICECUTS)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(Program.WAIT_TIME);
+                this.produceCars(Plant.CARS_PER_TICK);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
                 getOrder(plantName);
-                currentPrice = determinePrice();
+                determinePrice();
             }
 
-            Console.WriteLine("{0} is shutting down...", plantName);
+            Plant.ActiveCountSemaphore.WaitOne(-1);
+            Plant.NUMBER_OF_ACTIVE_PLANTS--;
+            Plant.ActiveCountSemaphore.Release();
 
-            NUMBER_OF_ACTIVE_PLANTS--;
+            Console.WriteLine("{0} is shutting down...", plantName);
         }
 
         public void produceCars(int numberOfCars)
@@ -54,25 +62,30 @@ namespace Assignment2
             this.numberOfCars += numberOfCars;
         }
 
-        public float determinePrice() // INCOMPLETE
+        public float determinePrice()
         {
-            int numberOfOrders = 0, stockPrice = 0;
+            int numberOfOrders = OrderBuffer.count();
+            float stockPrice = (float)(new Random()).NextDouble() * 500.0f + 250.0f;
 
-            float price = Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
+            this.previousPrice = this.currentPrice;
+            this.currentPrice = Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
 
-            if (price < currentPrice)
+            if (this.currentPrice < this.previousPrice)
             {
                 var plantName = Thread.CurrentThread.Name;
                 if (PriceCut != null)
-                    PriceCut(price);
+                {
+                    Console.WriteLine("\nPRICE CUT!!\n");
+                    PriceCut(this.currentPrice);
+                }
 
                 ++priceCuts;
             }
 
-            return price;
+            return this.currentPrice;
         }
 
-        public void getOrder(string plantName) // INCOMPLETE
+        public void getOrder(string plantName)
         {
             string encOrder = OrderBuffer.GetCell();
             if (encOrder != null)
@@ -82,13 +95,15 @@ namespace Assignment2
             }
         }
 
-        private void processOrder(Order order) // INCOMPLETE
+        private void processOrder(Order order)
         {
             // Make a new thread, do the thing, dab, close thread or whatever
 
-            const float SALES_TAX = 0.9f;
+            const float SALES_TAX = 1.09f;
             float subTotal = order.Amount * order.UnitPrice;
-            float total = (subTotal * SALES_TAX) + subTotal;
+            float total = subTotal * SALES_TAX;
+
+
             order.TimeFulfilled = DateTime.Now;
             order.ReceiverId = Thread.CurrentThread.Name;
 

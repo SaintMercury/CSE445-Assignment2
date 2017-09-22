@@ -44,5 +44,15 @@ namespace Assignment2
 
             return str;
         }
+
+        public int count()
+        {
+            int count = -1;
+            lock(_cells)
+            {
+                count = _cells.Count;
+            }
+            return count;
+        }
     }
 }

@@ -13,7 +13,8 @@ namespace Assignment2
         public static float CalculatePrice(int numberOfOrders, int numberOfCars, float stockPrice) // INCOMPLETE
         {
             // Use some dope ass statistical data to determine price
-            var price = rng.Next(5, 20); // TODO: do actual price calculation
+            float SOME_CONSTANT = 1.0f;
+            var price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT;
             return price; 
         }
     }

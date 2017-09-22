@@ -1,9 +1,13 @@
-﻿using System.Threading;
+﻿using System;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Assignment2
 {
     class Program
     {
+        public static int WAIT_TIME = 50;
+
         static void initPlants(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int plantCount = 2)
         {
             for(int i = 0; i < plantCount; ++i)
@@ -15,33 +19,28 @@ namespace Assignment2
             }
         }
 
+        static void initDealers(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int dealerCount = 5)
+        {
+            for(int i = 0; i < dealerCount; ++i)
+            {
+                Dealer dealer = new Dealer(orderBuffer, confirmationBuffer);
+                Plant.PriceCut += dealer.PriceCutHandler;
+                Thread thread = new Thread(new ThreadStart(dealer.DealerFunc));
+                thread.Name = "Dealer Thread: " + i.ToString();
+                thread.Start();
+            }
+        }
+
         static void Main(string[] args)
         {
             const int NUMBER_OF_DEALERS = 5;
             const int NUMBER_OF_PLANTS = 2;
-            
+
             OrderBuf orderBuffer = new OrderBuf(),
                      confirmationBuffer = new OrderBuf();
 
             initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
-
-            // Subscribing particular threads to an event remains unsolved
-            Dealer[] dealers = new Dealer[NUMBER_OF_DEALERS];
-            Thread[] dealerThreads = new Thread[NUMBER_OF_DEALERS];
-            
-            for (int i = 0; i < NUMBER_OF_DEALERS; ++i)
-            {
-                dealers[i] = new Dealer(orderBuffer, confirmationBuffer);
-                dealerThreads[i] = new Thread(new ThreadStart(dealers[i].DealerFunc));
-                dealerThreads[i].Name = (i + 1).ToString();
-
-                // Enlist those dealers into an event handler to server their country
-                Plant.PriceCut += dealers[i].PriceCutHandler;
-
-                // Politely ask our threads to start when they can. Be sure not rush the threads,
-                // it helps to make sure they don't get spiteful and deadlock.
-                dealerThreads[i].Start();
-            }
+            initDealers(orderBuffer, confirmationBuffer, NUMBER_OF_DEALERS);
         }
     }
 }
