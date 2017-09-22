@@ -124,7 +124,7 @@ namespace Assignment2
             {
                 Order order = EncDec.DecodeOrder(encodedOrder);
 
-                _printEvent.Reset();  // Ensures that we don't get interrupted and print out of order
+                _printEvent.WaitOne();  // Ensures that we don't get interrupted and print out of order
 
                 Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", this.ThreadName, DateTime.Now);
                 Console.WriteLine("Order fulfilled by Plant {0} at {1}", order.ReceiverId, order.TimeFulfilled);
@@ -138,7 +138,7 @@ namespace Assignment2
 
         private OrderThreadArg captureCurrentState(float price)
         {
-            _priceEvent.Reset(); // Block other threads until state has been captured and stored
+            _priceEvent.WaitOne(); // Block other threads until state has been captured and stored
 
             _prevPrice = _currentPrice; 
             _currentPrice = price;
