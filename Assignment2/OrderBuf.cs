@@ -8,8 +8,6 @@ namespace Assignment2
         private Semaphore _Empty;
         private Semaphore _Full;
         private string[] _Cells;
-        private Mutex _m1Mutex;
-        private Mutex _m2Mutex;
         private AutoResetEvent e1;
         private AutoResetEvent e2;
 
@@ -17,8 +15,6 @@ namespace Assignment2
         {
             _Empty = new Semaphore(size, size);
             _Full = new Semaphore(0, size);
-            _m1Mutex = new Mutex(false);
-            _m2Mutex = new Mutex(true);
             e1 = new AutoResetEvent(false);
             e2 = new AutoResetEvent(true);
             
@@ -59,6 +55,7 @@ namespace Assignment2
         {
             // Entry
             e1.Reset();
+
             // CS
             _Cells[index] = orderStr;
 
@@ -93,6 +90,7 @@ namespace Assignment2
         {
             // Entry
             e2.Reset();
+
             // CS
             string encOrder = _Cells[index];
 
