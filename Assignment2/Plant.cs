@@ -101,11 +101,11 @@ namespace Assignment2
 
         private float determinePriceAndEmitEvent()
         {
-            int numberOfOrders = 1;
-            float stockPrice = 100; //  (float)(new Random()).NextDouble() * 500.0f + 250.0f;
+            float numberOfOrders = this.priceCuts;
+            float stockPrice = (new Random()).Next(1, 3) * 100.0f;
 
             this._previousPrice = this._currentPrice;
-            this._currentPrice = this._previousPrice - 1;  // Pricing.CalculatePrice(numberOfOrders, this._numberOfCars, stockPrice);
+            this._currentPrice =  Pricing.CalculatePrice(numberOfOrders, this._numberOfCars, stockPrice);
 
             if (this._currentPrice < this._previousPrice)
             {

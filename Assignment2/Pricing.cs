@@ -6,11 +6,12 @@ namespace Assignment2
     static class Pricing
     {
         private static Random rng = new Random();
-        public static float CalculatePrice(int numberOfOrders, int numberOfCars, float stockPrice) // INCOMPLETE
+
+        public static float CalculatePrice(float numberOfOrders, float numberOfCars, float stockPrice)
         {
-            float SOME_CONSTANT = 1.0f;
-            var price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT * (rng.Next(1, 3) * 0.5);
-            return (float)price;
+            float SOME_CONSTANT = 1000.0f;
+            float price = numberOfOrders / numberOfCars * stockPrice * SOME_CONSTANT;
+            return price;
         }
     }
 }

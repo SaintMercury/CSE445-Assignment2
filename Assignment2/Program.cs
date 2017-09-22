@@ -5,7 +5,7 @@ namespace Assignment2
 {
     class Program
     {
-        public static int WAIT_TIME = 100;
+        public static int WAIT_TIME = 10;
 
         static void initPlants(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int plantCount = 2)
         {
