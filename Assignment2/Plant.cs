@@ -87,7 +87,7 @@ namespace Assignment2
 
         public void getOrder(string plantName)
         {
-            string encOrder = OrderBuffer.GetCell();
+            string encOrder = OrderBuffer.GetFirstAvailableCell();//OrderBuffer.GetCell();
             if (encOrder != null)
             {
                 Order order = EncDec.DecodeOrder(encOrder);
@@ -107,8 +107,9 @@ namespace Assignment2
             order.TimeFulfilled = DateTime.Now;
             order.ReceiverId = Thread.CurrentThread.Name;
 
+            int index = Int32.Parse(order.SenderId);
             string encodedOrder = EncDec.EncodeOrder(order);
-            ConfirmationBuffer.SetCell(encodedOrder);
+            ConfirmationBuffer.SetCellByIndex(encodedOrder, index);
         }
 
         public static int ActivePlantCount()
