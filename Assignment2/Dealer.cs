@@ -14,6 +14,7 @@ namespace Assignment2
         public string ThreadName { get; set; }
         public bool WasRecentPriceCut { get; set; }
         public float CurrentPrice { get; set; }
+        public float PrevPrice { get; set; }
         
 
         public Dealer(OrderBuf orderBuffer, OrderBuf confirmationOrder)
@@ -28,19 +29,20 @@ namespace Assignment2
         {
             Order order = GenerateOrder(CurrentPrice);
             string encodedOrder = EncDec.EncodeOrder(order);
-            OrderBuffer.SetCell(encodedOrder);
+            OrderBuffer.SetFirstAvailableCell(encodedOrder);
         }
 
         public void PriceCutHandler(float price)
         {
             WasRecentPriceCut = true;
+            PrevPrice = CurrentPrice;
             CurrentPrice = price;
         }
 
         private Order GenerateOrder(float price)
         {
             int amount = 10; // TODO: need a way to calculate amount
-            string dealerName = this.ThreadName;
+            string dealerName = Thread.CurrentThread.Name;
             Order order = new Order(dealerName, CardNo, amount, price);
             this.OrderCount++;
 
@@ -67,11 +69,12 @@ namespace Assignment2
 
         private void GetOrderConfirmation()
         {
-            string encodedOrder = ConfirmationBuffer.GetCell();   
+            int index = Int32.Parse(Thread.CurrentThread.Name);
+            string encodedOrder = ConfirmationBuffer.GetCellByIndex(index);   
             if ( !string.IsNullOrEmpty(encodedOrder) )
             {
                 Order order = EncDec.DecodeOrder(encodedOrder);
-                Console.WriteLine("\nDealer {0} receiving confirmation at: {1}", Thread.CurrentThread.Name, DateTime.Now);
+                Console.WriteLine("\nDealer {0} receiving order confirmation at: {1}", Thread.CurrentThread.Name, DateTime.Now);
                 Console.WriteLine("Order fulfilled by {0} at {1}", order.ReceiverId, order.TimeFulfilled);
             }
         }

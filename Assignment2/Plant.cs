@@ -9,7 +9,7 @@ namespace Assignment2
     {
         public static event PriceCutEvent PriceCut; // Link event to delegate
         private static int NUMBER_OF_ACTIVE_PLANTS = 2;
-        private const int MAX_PRICECUTS = 3;
+        private const int MAX_PRICECUTS = 20;
 
         private float currentPrice;
         private float previousPrice;
@@ -74,7 +74,7 @@ namespace Assignment2
 
         public void getOrder(string plantName) // INCOMPLETE
         {
-            string encOrder = OrderBuffer.GetCell();
+            string encOrder = OrderBuffer.GetFirstAvailableCell();//OrderBuffer.GetCell();
             if (encOrder != null)
             {
                 Order order = EncDec.DecodeOrder(encOrder);
@@ -92,8 +92,9 @@ namespace Assignment2
             order.TimeFulfilled = DateTime.Now;
             order.ReceiverId = Thread.CurrentThread.Name;
 
+            int index = Int32.Parse(order.SenderId);
             string encodedOrder = EncDec.EncodeOrder(order);
-            ConfirmationBuffer.SetCell(encodedOrder);
+            ConfirmationBuffer.SetCellByIndex(encodedOrder, index);
         }
 
         public static int ActivePlantCount()

@@ -19,9 +19,11 @@ namespace Assignment2
         {
             const int NUMBER_OF_DEALERS = 5;
             const int NUMBER_OF_PLANTS = 2;
+            const int ORDER_BUFFER_SIZE = 3;
+            const int CONF_BUFFER_SIZE = 5;
             
-            OrderBuf orderBuffer = new OrderBuf(),
-                     confirmationBuffer = new OrderBuf();
+            OrderBuf orderBuffer = new OrderBuf(ORDER_BUFFER_SIZE),
+                     confirmationBuffer = new OrderBuf(CONF_BUFFER_SIZE);
 
             initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
 
@@ -33,7 +35,7 @@ namespace Assignment2
             {
                 dealers[i] = new Dealer(orderBuffer, confirmationBuffer);
                 dealerThreads[i] = new Thread(new ThreadStart(dealers[i].DealerFunc));
-                dealerThreads[i].Name = (i + 1).ToString();
+                dealerThreads[i].Name = i.ToString();
 
                 // Enlist those dealers into an event handler to server their country
                 Plant.PriceCut += dealers[i].PriceCutHandler;
