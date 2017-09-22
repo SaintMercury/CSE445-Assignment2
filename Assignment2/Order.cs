@@ -12,14 +12,13 @@ namespace Assignment2
         public DateTime TimeFulfilled { get; set; }
         public string ReceiverId { get; set; }
 
-        public Order(string senderId, long cardNo, int amt, float unitPrice, string receiverId)
+        public Order(string senderId, long cardNo, int amt, float unitPrice)
         {
             SenderId = senderId;
             CardNo = cardNo;
             Amount = amt;
             UnitPrice = unitPrice;
             TimeCreated = DateTime.Now;
-            ReceiverId = receiverId;
         }
     }
 }

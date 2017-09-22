@@ -12,6 +12,8 @@ namespace Assignment2
         public OrderBuf ConfirmationBuffer { get; set; }
         public int OrderCount { get; set; }
         public string ThreadName { get; set; }
+        public bool WasRecentPriceCut { get; set; }
+        public float CurrentPrice { get; set; }
         
 
         public Dealer(OrderBuf orderBuffer, OrderBuf confirmationOrder)
@@ -22,23 +24,24 @@ namespace Assignment2
             this.ConfirmationBuffer = confirmationOrder;
         }
 
-        public void PriceCutHandler(float price, string plantId)
+        private void SendOrder()
         {
-            Order order = GenerateOrder(price, plantId);
+            Order order = GenerateOrder(CurrentPrice);
             string encodedOrder = EncDec.EncodeOrder(order);
             OrderBuffer.SetCell(encodedOrder);
         }
 
-        public Order GenerateOrder(float price, string receiverId)
+        public void PriceCutHandler(float price)
         {
-            if (Thread.CurrentThread.Name == null)
-            {
-                Thread.CurrentThread.Name = ThreadName;
-            }
+            WasRecentPriceCut = true;
+            CurrentPrice = price;
+        }
 
+        private Order GenerateOrder(float price)
+        {
             int amount = 10; // TODO: need a way to calculate amount
             string dealerName = this.ThreadName;
-            Order order = new Order(dealerName, CardNo, amount, price, receiverId);
+            Order order = new Order(dealerName, CardNo, amount, price);
             this.OrderCount++;
 
             return order;
@@ -50,7 +53,12 @@ namespace Assignment2
 
             while (Plant.ActivePlantCount() > 0)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(400);
+                if (WasRecentPriceCut)
+                {
+                    SendOrder();
+                    WasRecentPriceCut = false;
+                }
                 GetOrderConfirmation();
             }
 

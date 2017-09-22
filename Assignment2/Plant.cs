@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace Assignment2
 {
-    public delegate void PriceCutEvent(float price, string plantId); // emit the price and id of plant emitting event
+    public delegate void PriceCutEvent(float price); // emit the price and id of plant emitting event
 
     class Plant
     {
@@ -38,7 +38,7 @@ namespace Assignment2
 
             while (this.priceCuts < Plant.MAX_PRICECUTS)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(1000);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
                 getOrder(plantName);
                 currentPrice = determinePrice();
@@ -64,7 +64,7 @@ namespace Assignment2
             {
                 var plantName = Thread.CurrentThread.Name;
                 if (PriceCut != null)
-                    PriceCut(price, plantName);
+                    PriceCut(price);
 
                 ++priceCuts;
             }
@@ -90,11 +90,10 @@ namespace Assignment2
             float subTotal = order.Amount * order.UnitPrice;
             float total = (subTotal * SALES_TAX) + subTotal;
             order.TimeFulfilled = DateTime.Now;
+            order.ReceiverId = Thread.CurrentThread.Name;
 
             string encodedOrder = EncDec.EncodeOrder(order);
             ConfirmationBuffer.SetCell(encodedOrder);
-
-            //TODO: Send confirmation to dealer
         }
 
         public static int ActivePlantCount()
