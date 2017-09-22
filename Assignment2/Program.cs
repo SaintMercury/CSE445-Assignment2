@@ -42,12 +42,6 @@ namespace Assignment2
 
             initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
             initDealers(orderBuffer, confirmationBuffer, NUMBER_OF_DEALERS);
-
-            while(true)
-            {
-                Thread.Sleep(5000);
-                Console.WriteLine("Tick...");
-            }
         }
     }
 }
