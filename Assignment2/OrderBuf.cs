@@ -8,9 +8,6 @@ namespace Assignment2
         private Semaphore _Full;
         private string[] _Cells;
 
-        public bool PlantsAreRunning { get; set; }
-        private int _plantsRunning;
-
         public OrderBuf(int size)
         {
             _Empty = new Semaphore(size, size);

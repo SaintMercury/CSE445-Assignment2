@@ -26,7 +26,7 @@ namespace Assignment2
                 Dealer dealer = new Dealer(orderBuffer, confirmationBuffer);
                 Plant.PriceCut += dealer.PriceCutHandler;
                 Thread thread = new Thread(new ThreadStart(dealer.DealerFunc));
-                thread.Name = "Dealer Thread: " + i.ToString();
+                thread.Name = i.ToString();
                 thread.Start();
             }
         }
@@ -36,8 +36,8 @@ namespace Assignment2
             const int NUMBER_OF_DEALERS = 5;
             const int NUMBER_OF_PLANTS = 2;
 
-            OrderBuf orderBuffer = new OrderBuf(),
-                     confirmationBuffer = new OrderBuf();
+            OrderBuf orderBuffer = new OrderBuf(3),
+                     confirmationBuffer = new OrderBuf(NUMBER_OF_DEALERS);
 
             initPlants(orderBuffer, confirmationBuffer, NUMBER_OF_PLANTS);
             initDealers(orderBuffer, confirmationBuffer, NUMBER_OF_DEALERS);
