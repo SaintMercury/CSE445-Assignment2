@@ -8,121 +8,157 @@ namespace Assignment2
     class Plant
     {
         public static event PriceCutEvent PriceCut; // Link event to delegate
-        private static Semaphore ActiveCountSemaphore = new Semaphore(1, 1);
-        private static int NUMBER_OF_ACTIVE_PLANTS = 0;
-        private const int MAX_PRICECUTS = 3;
-        private const int CARS_PER_TICK = 100;
-
-        private float currentPrice;
-        private float previousPrice;
-        private int numberOfCars;
-        private int priceCuts;
         public OrderBuf OrderBuffer { get; set; }
         public OrderBuf ConfirmationBuffer { get; set; }
+        public string PlantName { get; set; }
 
-        public Plant(OrderBuf orderBuffer, OrderBuf confirmationOrder)
+        private static Semaphore ActiveCountSemaphore = new Semaphore(1, 1);
+        private static int NUMBER_OF_ACTIVE_PLANTS = 0;
+        private const int MAX_PRICECUTS = 20;
+        private const int CARS_PER_TICK = 100;
+        private float _currentPrice;
+        private float _previousPrice;
+        private int _numberOfCars;
+        private int priceCuts;
+        private AutoResetEvent _modifyNumOfCarsEvent;
+
+        public Plant(OrderBuf orderBuffer, OrderBuf confirmationBuffer)
         {
             // Make previous price so high that we immediately fire a promo event
-            this.previousPrice = 0;
-            this.currentPrice = 1000000;
-            this.numberOfCars = 0;
+            this._previousPrice = 0;
+            this._currentPrice = 1000000;
+            this._numberOfCars = 0;
             this.priceCuts = 0;
             this.OrderBuffer = orderBuffer;
-            this.ConfirmationBuffer = confirmationOrder;
+            this.ConfirmationBuffer = confirmationBuffer;
+            this._modifyNumOfCarsEvent = new AutoResetEvent(true);
         }
 
         public void PlantFunc()
         {
-            string plantName = Thread.CurrentThread.Name;
-
-            Console.WriteLine("Plant {0} is starting up!", plantName);
-
-            Plant.ActiveCountSemaphore.WaitOne(-1);
-            Plant.NUMBER_OF_ACTIVE_PLANTS++;
-            Plant.ActiveCountSemaphore.Release();
+            this.startPlant();
 
             while (this.priceCuts < Plant.MAX_PRICECUTS)
             {
                 Thread.Sleep(Program.WAIT_TIME);
                 this.produceCars(Plant.CARS_PER_TICK);
                 // Take the order from the queue of the orders; // Decide the price based on the orders 
-                determinePrice();
-                OrderProcessingThreads();
+                this.determinePriceAndEmitEvent();
+                this.runOrderProcessingThreads();
             }
 
+            this.shutDownPlant();
+        }
+
+        private void startPlant()
+        {
+            this.PlantName = Thread.CurrentThread.Name;
+            ActiveCountSemaphore.WaitOne(-1);
+            Plant.NUMBER_OF_ACTIVE_PLANTS++;
+            Plant.ActiveCountSemaphore.Release();
+
+            string plantName = Thread.CurrentThread.Name;
+            Console.WriteLine("Plant {0} is starting up!", plantName);
+        }
+
+        private void shutDownPlant()
+        {
             Plant.ActiveCountSemaphore.WaitOne(-1);
             Plant.NUMBER_OF_ACTIVE_PLANTS--;
             Plant.ActiveCountSemaphore.Release();
 
+            string plantName = Thread.CurrentThread.Name;
             Console.WriteLine("Plant {0} is shutting down...", plantName);
         }
 
-        private void OrderProcessingThreads()
+        private void runOrderProcessingThreads(int threadcount = 5)
         {
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < threadcount ; i++)
             {
-                Thread orderProcessor = new Thread(GetAndProcessOrder);
+                Thread orderProcessor = new Thread(this.getAndProcessOrder);
                 orderProcessor.Start();
                 Thread.Sleep(Program.WAIT_TIME);
             }
         }
 
-        public void produceCars(int numberOfCars)
+        private void produceCars(int numberOfCars)
         {
-            this.numberOfCars += numberOfCars;
+            _modifyNumOfCarsEvent.Reset(); // Prevent race condition
+
+            this._numberOfCars += numberOfCars;
+
+            _modifyNumOfCarsEvent.Set();
         }
 
-        public float determinePrice()
+        private void reduceCars(int numberOfCars)
+        {
+            _modifyNumOfCarsEvent.Reset();
+
+            this._numberOfCars -= numberOfCars;
+
+            _modifyNumOfCarsEvent.Set();
+        }
+
+        private float determinePriceAndEmitEvent()
         {
             int numberOfOrders = 1;
-            float stockPrice = 100;//  (float)(new Random()).NextDouble() * 500.0f + 250.0f;
+            float stockPrice = 100; //  (float)(new Random()).NextDouble() * 500.0f + 250.0f;
 
-            this.previousPrice = this.currentPrice;
-            this.currentPrice = this.previousPrice - 1; // Pricing.CalculatePrice(numberOfOrders, this.numberOfCars, stockPrice);
+            this._previousPrice = this._currentPrice;
+            this._currentPrice = this._previousPrice - 1;  // Pricing.CalculatePrice(numberOfOrders, this._numberOfCars, stockPrice);
 
-            if (this.currentPrice < this.previousPrice)
+            if (this._currentPrice < this._previousPrice)
             {
-                var plantName = Thread.CurrentThread.Name;
                 if (PriceCut != null)
                 {
-                    Console.WriteLine("\nPRICE CUT!!\n");
-                    PriceCut(this.currentPrice);
+                    PriceCut(this._currentPrice);
                 }
-
+                
                 ++priceCuts;
             }
 
-            return this.currentPrice;
+            return this._currentPrice;
         }
 
-        public void GetAndProcessOrder()
+        private void getAndProcessOrder()
         {
-            
-            string encOrder = OrderBuffer.GetFirstAvailableCell();//OrderBuffer.GetCell();
+            string encOrder = OrderBuffer.GetFirstAvailableCell();
             if (encOrder != null)
             {
                 Order order = EncDec.DecodeOrder(encOrder);
-                processOrder(order);
+                this.processOrder(order);
             }
+        }
+
+        private bool isValidCC(int ccNum)
+        {
+            return ccNum >= 5000 && ccNum <= 7000;
         }
 
         private void processOrder(Order order)
         {
-            // Make a new thread, do the thing, dab, close thread or whatever
+            bool isValidCC = this.isValidCC(order.CardNo);
+            if (isValidCC)
+            {
+                const float SALES_TAX = 1.09f;
+                float subTotal = order.Amount * order.UnitPrice;
+                float total = subTotal * SALES_TAX;
 
-            const float SALES_TAX = 1.09f;
-            float subTotal = order.Amount * order.UnitPrice;
-            float total = subTotal * SALES_TAX;
+                this.reduceCars(order.Amount);
 
-            this.numberOfCars -= order.Amount;
+                // Date stamp
+                order.TimeFulfilled = DateTime.Now;
+                order.ReceiverId = PlantName;
+                string encodedOrder = EncDec.EncodeOrder(order);
 
-
-            order.TimeFulfilled = DateTime.Now;
-            order.ReceiverId = Thread.CurrentThread.Name;
-
-            int index = Int32.Parse(order.SenderId);
-            string encodedOrder = EncDec.EncodeOrder(order);
-            ConfirmationBuffer.SetCellByIndex(encodedOrder, index);
+                // Send confirmation
+                int index = int.Parse(order.SenderId);
+                ConfirmationBuffer.SetCellByIndex(encodedOrder, index);
+            }
+            else
+            {
+                Console.WriteLine("\nOrder from Dealer {0} failed due to invalid credit card number", order.SenderId);
+            }
         }
 
         public static int ActivePlantCount()

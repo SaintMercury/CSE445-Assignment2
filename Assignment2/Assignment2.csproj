@@ -51,6 +51,7 @@
     <Compile Include="EncDec.cs" />
     <Compile Include="Order.cs" />
     <Compile Include="OrderBuf.cs" />
+    <Compile Include="OrderThreadArg.cs" />
     <Compile Include="Plant.cs" />
     <Compile Include="Pricing.cs" />
     <Compile Include="Program.cs" />

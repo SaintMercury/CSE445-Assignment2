@@ -5,82 +5,74 @@ namespace Assignment2
 {
     class OrderBuf
     {
-        private Semaphore _Empty;
-        private Semaphore _Full;
-        private string[] _Cells;
-        private AutoResetEvent e1;
-        private AutoResetEvent e2;
+        private Semaphore _empty;
+        private Semaphore _full;
+        private string[] _cells;
+        private AutoResetEvent _e1;
+        private AutoResetEvent _e2;
 
         public OrderBuf(int size)
         {
-            _Empty = new Semaphore(size, size);
-            _Full = new Semaphore(0, size);
-            e1 = new AutoResetEvent(false);
-            e2 = new AutoResetEvent(true);
+            _empty = new Semaphore(size, size);
+            _full = new Semaphore(0, size);
+            _e1 = new AutoResetEvent(false);
+            _e2 = new AutoResetEvent(true);
             
-            _Cells = new string[size];
-            for (int i = 0; i < _Cells.Length; i++)
-            {
-                _Cells[i] = null;
-            }
+            _cells = new string[size];
         }
+
 
         public void SetFirstAvailableCell(string orderStr)
         {
-            string tempStr;
-            if (_Empty.WaitOne(5000))
+            if (_empty.WaitOne(5000))
             {
-                lock (_Cells)
+                lock (_cells)
                 {
-                    for (int i = 0; i < _Cells.Length; i++)
+                    for (int i = 0; i < _cells.Length; i++)
                     {
-                        tempStr = _Cells[i];
+                        var tempStr = _cells[i];
                         if (string.IsNullOrEmpty(tempStr))
                         {
-                            _Cells[i] = orderStr;
+                            _cells[i] = orderStr;
                             break;
                         }
                     }
                 }
 
-                _Full.Release();
-            }
-            else
-            {
-                Console.WriteLine("Failed");
+                _full.Release();
             }
         }
 
         public void SetCellByIndex(string orderStr, int index)
         {
             // Entry
-            e1.Reset();
+            _e1.Reset();
 
             // CS
-            _Cells[index] = orderStr;
+            _cells[index] = orderStr;
 
             // Exit
-            e2.Set();
+            _e2.Set();
         }
 
         public string GetFirstAvailableCell()
         {
             string encodedStr = null;
-            if (_Full.WaitOne(1000))
+            if (_full.WaitOne(1000))
             {
-                lock (_Cells)
+                lock (_cells)
                 {
-                    for (int i = 0; i < _Cells.Length; i++)
+                    for (int i = 0; i < _cells.Length; i++)
                     {
-                        encodedStr = _Cells[i];
+                        encodedStr = _cells[i];
                         if (!string.IsNullOrEmpty(encodedStr))  // Found an occupied cell: null it out -> break -> return
                         {
-                            _Cells[i] = null;
+                            _cells[i] = null;
                             break;
                         }
                     }
                 }
-                _Empty.Release();
+                _empty.Release();
             }
 
             return encodedStr;
@@ -89,13 +81,14 @@ namespace Assignment2
         public string GetCellByIndex(int index)
         {
             // Entry
-            e2.Reset();
+            _e2.Reset();
 
             // CS
-            string encOrder = _Cells[index];
+            string encOrder = _cells[index];
+            _cells[index] = null;
 
             // Exit
-            e1.Set();
+            _e1.Set();
 
             return encOrder;
         }

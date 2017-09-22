@@ -20,10 +20,11 @@ namespace Assignment2
 
         static void initDealers(OrderBuf orderBuffer, OrderBuf confirmationBuffer, int dealerCount = 5)
         {
-            Dealer[] dealers = new Dealer[5];
+            Random rand = new Random(); // Used for generating cc numbers
+            Dealer[] dealers = new Dealer[dealerCount];
             for(int i = 0; i < dealerCount; ++i)
             {
-                dealers[i] = new Dealer(orderBuffer, confirmationBuffer, i);
+                dealers[i] = new Dealer(orderBuffer, confirmationBuffer, i, rand);
                 Plant.PriceCut += dealers[i].PriceCutHandler;
                 Thread thread = new Thread(new ThreadStart(dealers[i].DealerFunc));
                 thread.Name = i.ToString();
